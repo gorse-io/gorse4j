@@ -3,6 +3,7 @@ package io.gorse.gorse4j;
 import io.avaje.jsonb.Json;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -41,9 +42,9 @@ public class Feedback implements Comparable<Feedback>, Serializable {
      * of the feedback in the recommender system.
      */
     @Json.Property("Timestamp")
-    private final String timestamp;
+    private final Instant timestamp;
     
-    public Feedback(String feedbackType, String userId, String itemId, String timestamp) {
+    public Feedback(String feedbackType, String userId, String itemId, Instant timestamp) {
         this.feedbackType = feedbackType;
         this.userId = userId;
         this.itemId = itemId;
@@ -61,8 +62,8 @@ public class Feedback implements Comparable<Feedback>, Serializable {
     public String getItemId() {
         return itemId;
     }
-
-    public String getTimestamp() {
+    
+    public Instant getTimestamp() {
         return timestamp;
     }
     

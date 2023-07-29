@@ -5,6 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -65,8 +66,8 @@ public class GorseTest {
         if (client == null) fail();
 
         List<Feedback> feedbacks = List.of(
-                new Feedback("read", "100", "300", "2022-11-20T13:55:27Z"),
-                new Feedback("read", "100", "400", "2022-11-20T13:55:27Z")
+                new Feedback("read", "100", "300", Instant.parse("2022-11-20T13:55:27Z")),
+                new Feedback("read", "100", "400", Instant.parse("2022-11-20T13:55:27Z"))
         );
 
         // Insert feedback.

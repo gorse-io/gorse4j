@@ -3,6 +3,7 @@ package io.gorse.gorse4j;
 import io.avaje.jsonb.Json;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,7 +49,7 @@ public class Item implements Comparable<Item>, Serializable {
      * of the item in the recommender system.
      */
     @Json.Property("Timestamp")
-    private final String timestamp;
+    private final Instant timestamp;
     
     /**
      * The item's comment information, which helps to browse items and
@@ -63,7 +64,7 @@ public class Item implements Comparable<Item>, Serializable {
      * in which the item belongs, the timestamp of the item used to determine the
      * "freshness" of the item, and comment information for the dashboard.
      */
-    public Item(String itemId, Boolean isHidden, List<String> labels, List<String> categories, String timestamp, String comment) {
+    public Item(String itemId, Boolean isHidden, List<String> labels, List<String> categories, Instant timestamp, String comment) {
         this.itemId = itemId;
         this.isHidden = isHidden;
         this.labels = labels;
@@ -97,7 +98,7 @@ public class Item implements Comparable<Item>, Serializable {
         return categories;
     }
 
-    public String getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
