@@ -41,6 +41,7 @@ public final class GorseTestFactory implements AutoCloseable {
 		
 		this.redis = new GenericContainer<>("redis:latest")
             .withExposedPorts(6379);
+        this.redis.start();
 		String redisHost = this.redis.getHost();
 		int redisPort = this.redis.getFirstMappedPort();
 		
@@ -50,6 +51,7 @@ public final class GorseTestFactory implements AutoCloseable {
             .withEnv("MYSQL_DATABASE", "gorse")
             .withEnv("MYSQL_USER", "gorse")
             .withEnv("MYSQL_PASSWORD", "gorse_pass");
+		this.sql.start();
 		String sqlHost = this.sql.getHost();
 		int sqlPort = this.sql.getFirstMappedPort();
 		
@@ -67,9 +69,6 @@ public final class GorseTestFactory implements AutoCloseable {
 					"/etc/gorse/config.toml",
 					BindMode.READ_ONLY
 			);
-		
-		this.redis.start();
-		this.sql.start();
 		this.gorse.start();
 	}
 	
