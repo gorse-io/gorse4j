@@ -1,3 +1,5 @@
+.idea/codeStyles
+#region toptal gitignore (java,maven,jetbrains+all)
 # Created by https://www.toptal.com/developers/gitignore/api/java,maven,jetbrains+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,maven,jetbrains+all
 
@@ -135,3 +137,4 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/java,maven,jetbrains+all
+#endregion
