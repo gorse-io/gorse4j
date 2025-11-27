@@ -11,6 +11,7 @@ public class Feedback {
     private String feedbackType;
     private String userId;
     private String itemId;
+    private double value;
     private String timestamp;
 
     public Feedback() {
@@ -36,6 +37,11 @@ public class Feedback {
     @JsonProperty("ItemId")
     public String getItemId() {
         return itemId;
+    }
+
+    @JsonProperty("Value")
+    public double getValue() {
+        return value;
     }
 
     @JsonProperty("Timestamp")

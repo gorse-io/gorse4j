@@ -9,7 +9,7 @@ public class Item {
 
     private String itemId;
     private Boolean isHidden;
-    private List<String> labels;
+    private Object labels;
     private List<String> categories;
     private String timestamp;
     private String comment;
@@ -17,7 +17,7 @@ public class Item {
     public Item() {
     }
 
-    public Item(String itemId, Boolean isHidden, List<String> labels, List<String> categories, String timestamp, String comment) {
+    public Item(String itemId, Boolean isHidden, Object labels, List<String> categories, String timestamp, String comment) {
         this.itemId = itemId;
         this.isHidden = isHidden;
         this.labels = labels;
@@ -37,7 +37,7 @@ public class Item {
     }
 
     @JsonProperty("Labels")
-    public List<String> getLabels() {
+    public Object getLabels() {
         return labels;
     }
 
