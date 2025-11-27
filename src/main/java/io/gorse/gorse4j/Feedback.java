@@ -17,10 +17,11 @@ public class Feedback {
     public Feedback() {
     }
 
-    public Feedback(String feedbackType, String userId, String itemId, String timestamp) {
+    public Feedback(String feedbackType, String userId, String itemId, double value, String timestamp) {
         this.feedbackType = feedbackType;
         this.userId = userId;
         this.itemId = itemId;
+        this.value = value;
         this.timestamp = timestamp;
     }
 

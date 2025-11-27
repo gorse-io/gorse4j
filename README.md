@@ -24,7 +24,7 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Gorse client = new Gorse(GORSE_ENDPOINT, GORSE_API_KEY);
 
         // Insert a user
@@ -42,8 +42,8 @@ public class Main {
 
         // Insert feedback
         List<Feedback> feedbacks = List.of(
-                new Feedback("read", "100", "300", "2022-11-20T13:55:27Z"),
-                new Feedback("read", "100", "400", "2022-11-20T13:55:27Z")
+                new Feedback("read", "100", "300", 1, "2022-11-20T13:55:27Z"),
+                new Feedback("read", "100", "400", 2, "2022-11-20T13:55:27Z")
         );
         client.insertFeedback(feedbacks);
 
