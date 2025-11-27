@@ -11,15 +11,17 @@ public class Feedback {
     private String feedbackType;
     private String userId;
     private String itemId;
+    private double value;
     private String timestamp;
 
     public Feedback() {
     }
 
-    public Feedback(String feedbackType, String userId, String itemId, String timestamp) {
+    public Feedback(String feedbackType, String userId, String itemId, double value, String timestamp) {
         this.feedbackType = feedbackType;
         this.userId = userId;
         this.itemId = itemId;
+        this.value = value;
         this.timestamp = timestamp;
     }
 
@@ -36,6 +38,11 @@ public class Feedback {
     @JsonProperty("ItemId")
     public String getItemId() {
         return itemId;
+    }
+
+    @JsonProperty("Value")
+    public double getValue() {
+        return value;
     }
 
     @JsonProperty("Timestamp")

@@ -47,6 +47,10 @@ public class Gorse {
         return this.request("POST", this.endpoint + "/api/feedback", feedbacks, RowAffected.class);
     }
 
+    public RowAffected deleteFeedback(String feedbackType, String userId, String itemId) throws IOException {
+        return this.request("DELETE", this.endpoint + "/api/feedback/" + feedbackType + "/" + userId + "/" + itemId, null, RowAffected.class);
+    }
+
     public List<Feedback> listFeedback(String userId, String feedbackType) throws IOException {
         return List.of(this.request("GET", this.endpoint + "/api/user/" + userId + "/feedback/" + feedbackType, null, Feedback[].class));
     }
