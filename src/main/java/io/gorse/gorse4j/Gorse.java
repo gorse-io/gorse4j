@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 public class Gorse {
 
@@ -55,15 +56,32 @@ public class Gorse {
         return List.of(this.request("GET", this.endpoint + "/api/user/" + userId + "/feedback/" + feedbackType, null, Feedback[].class));
     }
 
-    public List<String> getRecommend(String userId) throws IOException {
-        return List.of(this.request("GET", this.endpoint + "/api/recommend/" + userId, null, String[].class));
+    /**
+     * Get recommendation with scores for a user.
+     * Uses X-API-Version: 2 header to return scores.
+     * @param userId User ID
+     * @return List of Score objects with item IDs and scores
+     */
+    public List<Score> getRecommend(String userId) throws IOException {
+        return List.of(this.requestWithHeaders("GET", this.endpoint + "/api/recommend/" + userId, null, Score[].class, 
+            Map.of("X-API-Version", "2")));
     }
 
     private <Request, Response> Response request(String method, String url, Request request, Class<Response> responseClass) throws IOException {
+        return requestWithHeaders(method, url, request, responseClass, null);
+    }
+
+    private <Request, Response> Response requestWithHeaders(String method, String url, Request request, Class<Response> responseClass, Map<String, String> headers) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(method);
         connection.setRequestProperty("X-API-Key", this.apiKey);
         connection.setRequestProperty("Content-Type", "application/json");
+        // Add custom headers
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
         // Send request
         ObjectMapper mapper = new ObjectMapper();
         if (request != null) {

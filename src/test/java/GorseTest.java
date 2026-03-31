@@ -75,9 +75,9 @@ public class GorseTest {
     @Test
     public void testRecommend() throws IOException {
         client.insertUser(new User("3000", null));
-        List<String> recommendations = client.getRecommend("3000");
-        Assert.assertEquals("315", recommendations.get(0));
-        Assert.assertEquals("1432", recommendations.get(1));
-        Assert.assertEquals("918", recommendations.get(2));
+        List<Score> recommendations = client.getRecommend("3000");
+        Assert.assertEquals("315", recommendations.get(0).getId());
+        Assert.assertEquals("1432", recommendations.get(1).getId());
+        Assert.assertEquals("918", recommendations.get(2).getId());
     }
 }
