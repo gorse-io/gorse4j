@@ -24,6 +24,10 @@ public class Gorse {
         return this.request("POST", this.endpoint + "/api/user", user, RowAffected.class);
     }
 
+    public RowAffected insertUsers(List<User> users) throws IOException {
+        return this.request("POST", this.endpoint + "/api/users", users, RowAffected.class);
+    }
+
     public User getUser(String userId) throws IOException {
         return this.request("GET", this.endpoint + "/api/user/" + userId, null, User.class);
     }
@@ -34,6 +38,10 @@ public class Gorse {
 
     public RowAffected insertItem(Item item) throws IOException {
         return this.request("POST", this.endpoint + "/api/item", item, RowAffected.class);
+    }
+
+    public RowAffected insertItems(List<Item> items) throws IOException {
+        return this.request("POST", this.endpoint + "/api/items", items, RowAffected.class);
     }
 
     public Item getItem(String itemId) throws IOException {

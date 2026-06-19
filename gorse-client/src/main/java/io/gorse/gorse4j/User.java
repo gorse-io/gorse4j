@@ -20,6 +20,12 @@ public class User {
         this.labels = labels;
     }
 
+    public User(String userId, Object labels, String comment) {
+        this.userId = userId;
+        this.labels = labels;
+        this.comment = comment;
+    }
+
     @JsonProperty("UserId")
     public String getUserId() {
         return userId;

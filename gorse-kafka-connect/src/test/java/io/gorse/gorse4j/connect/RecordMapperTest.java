@@ -1,5 +1,8 @@
 package io.gorse.gorse4j.connect;
 
+import io.gorse.gorse4j.Feedback;
+import io.gorse.gorse4j.Item;
+import io.gorse.gorse4j.User;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,12 +26,13 @@ public class RecordMapperTest {
                 "Comment", "test user"
         ), 1L);
 
-        List<Map<String, Object>> users = mapper.toGorseRecords(record);
+        List<Object> users = mapper.toGorseRecords(record);
 
         Assert.assertEquals(1, users.size());
-        Assert.assertEquals("u1", users.get(0).get("UserId"));
-        Assert.assertEquals(Map.of("role", "admin"), users.get(0).get("Labels"));
-        Assert.assertEquals("test user", users.get(0).get("Comment"));
+        User user = (User) users.get(0);
+        Assert.assertEquals("u1", user.getUserId());
+        Assert.assertEquals(Map.of("role", "admin"), user.getLabels());
+        Assert.assertEquals("test user", user.getComment());
     }
 
     @Test
@@ -48,13 +52,14 @@ public class RecordMapperTest {
         value.put("score", 1.0);
         SinkRecord record = new SinkRecord("events", 0, null, null, null, value, 1L);
 
-        List<Map<String, Object>> feedback = mapper.toGorseRecords(record);
+        List<Object> feedback = mapper.toGorseRecords(record);
 
         Assert.assertEquals(1, feedback.size());
-        Assert.assertEquals("read", feedback.get(0).get("FeedbackType"));
-        Assert.assertEquals("u1", feedback.get(0).get("UserId"));
-        Assert.assertEquals("i1", feedback.get(0).get("ItemId"));
-        Assert.assertEquals(1.0, feedback.get(0).get("Value"));
+        Feedback event = (Feedback) feedback.get(0);
+        Assert.assertEquals("read", event.getFeedbackType());
+        Assert.assertEquals("u1", event.getUserId());
+        Assert.assertEquals("i1", event.getItemId());
+        Assert.assertEquals(1.0, event.getValue(), 0.0);
     }
 
     @Test
@@ -68,11 +73,11 @@ public class RecordMapperTest {
                 "[{\"ItemId\":\"i1\"},{\"ItemId\":\"i2\",\"Comment\":\"second\"}]",
                 1L);
 
-        List<Map<String, Object>> items = mapper.toGorseRecords(record);
+        List<Object> items = mapper.toGorseRecords(record);
 
         Assert.assertEquals(2, items.size());
-        Assert.assertEquals("i1", items.get(0).get("ItemId"));
-        Assert.assertEquals("i2", items.get(1).get("ItemId"));
-        Assert.assertEquals("second", items.get(1).get("Comment"));
+        Assert.assertEquals("i1", ((Item) items.get(0)).getItemId());
+        Assert.assertEquals("i2", ((Item) items.get(1)).getItemId());
+        Assert.assertEquals("second", ((Item) items.get(1)).getComment());
     }
 }

@@ -2,6 +2,9 @@ package io.gorse.gorse4j.connect;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gorse.gorse4j.Feedback;
+import io.gorse.gorse4j.Item;
+import io.gorse.gorse4j.User;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.DataException;
@@ -50,10 +53,10 @@ final class RecordMapper {
         this.config = config;
     }
 
-    List<Map<String, Object>> toGorseRecords(SinkRecord record) {
+    List<Object> toGorseRecords(SinkRecord record) {
         GorseSinkConfig.EntityType entityType = config.entityForTopic(record.topic());
         List<Map<String, Object>> values = valuesAsMaps(record.value());
-        List<Map<String, Object>> result = new ArrayList<>(values.size());
+        List<Object> result = new ArrayList<>(values.size());
         for (Map<String, Object> value : values) {
             switch (entityType) {
                 case USER:
@@ -72,27 +75,24 @@ final class RecordMapper {
         return result;
     }
 
-    private Map<String, Object> toUser(String topic, Map<String, Object> value) {
-        Map<String, Object> user = new LinkedHashMap<>();
-        user.put("UserId", required(value, topic, FIELD_USER_ID, DEFAULT_USER_ID_PATHS));
-        putIfPresent(user, "Labels", find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS));
-        putIfPresent(user, "Comment", find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS));
-        return user;
+    private User toUser(String topic, Map<String, Object> value) {
+        return new User(
+                stringValue(required(value, topic, FIELD_USER_ID, DEFAULT_USER_ID_PATHS)),
+                find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS),
+                stringValue(find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS)));
     }
 
-    private Map<String, Object> toItem(String topic, Map<String, Object> value) {
-        Map<String, Object> item = new LinkedHashMap<>();
-        item.put("ItemId", required(value, topic, FIELD_ITEM_ID, DEFAULT_ITEM_ID_PATHS));
-        putIfPresent(item, "IsHidden", find(value, topic, FIELD_IS_HIDDEN, DEFAULT_IS_HIDDEN_PATHS));
-        putIfPresent(item, "Labels", find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS));
-        putIfPresent(item, "Categories", find(value, topic, FIELD_CATEGORIES, DEFAULT_CATEGORIES_PATHS));
-        putIfPresent(item, "Timestamp", find(value, topic, FIELD_TIMESTAMP, DEFAULT_TIMESTAMP_PATHS));
-        putIfPresent(item, "Comment", find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS));
-        return item;
+    private Item toItem(String topic, Map<String, Object> value) {
+        return new Item(
+                stringValue(required(value, topic, FIELD_ITEM_ID, DEFAULT_ITEM_ID_PATHS)),
+                booleanValue(find(value, topic, FIELD_IS_HIDDEN, DEFAULT_IS_HIDDEN_PATHS)),
+                find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS),
+                stringList(find(value, topic, FIELD_CATEGORIES, DEFAULT_CATEGORIES_PATHS)),
+                stringValue(find(value, topic, FIELD_TIMESTAMP, DEFAULT_TIMESTAMP_PATHS)),
+                stringValue(find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS)));
     }
 
-    private Map<String, Object> toFeedback(String topic, Map<String, Object> value) {
-        Map<String, Object> feedback = new LinkedHashMap<>();
+    private Feedback toFeedback(String topic, Map<String, Object> value) {
         Object feedbackType = find(value, topic, FIELD_FEEDBACK_TYPE, DEFAULT_FEEDBACK_TYPE_PATHS);
         if (feedbackType == null && !config.defaultFeedbackType().isBlank()) {
             feedbackType = config.defaultFeedbackType();
@@ -100,14 +100,14 @@ final class RecordMapper {
         if (feedbackType == null) {
             throw new DataException("missing required field: " + FIELD_FEEDBACK_TYPE);
         }
-        feedback.put("FeedbackType", feedbackType);
-        feedback.put("UserId", required(value, topic, FIELD_USER_ID, DEFAULT_USER_ID_PATHS));
-        feedback.put("ItemId", required(value, topic, FIELD_ITEM_ID, DEFAULT_ITEM_ID_PATHS));
-        putIfPresent(feedback, "Value", find(value, topic, FIELD_VALUE, DEFAULT_VALUE_PATHS));
-        putIfPresent(feedback, "Timestamp", find(value, topic, FIELD_TIMESTAMP, DEFAULT_TIMESTAMP_PATHS));
-        putIfPresent(feedback, "Labels", find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS));
-        putIfPresent(feedback, "Comment", find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS));
-        return feedback;
+        return new Feedback(
+                stringValue(feedbackType),
+                stringValue(required(value, topic, FIELD_USER_ID, DEFAULT_USER_ID_PATHS)),
+                stringValue(required(value, topic, FIELD_ITEM_ID, DEFAULT_ITEM_ID_PATHS)),
+                doubleValue(find(value, topic, FIELD_VALUE, DEFAULT_VALUE_PATHS)),
+                stringValue(find(value, topic, FIELD_TIMESTAMP, DEFAULT_TIMESTAMP_PATHS)),
+                find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS),
+                stringValue(find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS)));
     }
 
     private Object required(
@@ -154,10 +154,42 @@ final class RecordMapper {
         return current;
     }
 
-    private static void putIfPresent(Map<String, Object> target, String key, Object value) {
-        if (value != null) {
-            target.put(key, value);
+    private static String stringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    private static Boolean booleanValue(Object value) {
+        if (value == null) {
+            return null;
         }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        return Boolean.valueOf(String.valueOf(value));
+    }
+
+    private static double doubleValue(Object value) {
+        if (value == null) {
+            return 0;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        return Double.parseDouble(String.valueOf(value));
+    }
+
+    private static List<String> stringList(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Collection) {
+            List<String> result = new ArrayList<>();
+            for (Object element : (Collection<?>) value) {
+                result.add(stringValue(element));
+            }
+            return result;
+        }
+        return List.of(stringValue(value));
     }
 
     private List<Map<String, Object>> valuesAsMaps(Object value) {
