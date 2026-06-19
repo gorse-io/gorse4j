@@ -52,35 +52,3 @@ public class Main {
     }
 }
 ```
-
-## Kafka Connect Sink
-
-The `gorse-kafka-connect` module provides a Kafka Connect sink connector for
-streaming users, items, and feedback from Kafka topics into Gorse.
-
-```properties
-name=gorse-sink
-connector.class=io.gorse.gorse4j.connect.GorseSinkConnector
-tasks.max=1
-topics=gorse-users,gorse-items,gorse-feedback
-
-gorse.endpoint=http://gorse-server:8088
-gorse.api.key=your-api-key
-gorse.batch.size=500
-
-topic.gorse-users.entity=user
-topic.gorse-items.entity=item
-topic.gorse-feedback.entity=feedback
-
-topic.gorse-feedback.field.feedback_type=event_type
-topic.gorse-feedback.field.user_id=uid
-topic.gorse-feedback.field.item_id=iid
-topic.gorse-feedback.field.timestamp=created_at
-topic.gorse-feedback.field.value=score
-```
-
-If the Kafka message already uses Gorse field names such as `UserId`, `ItemId`,
-`FeedbackType`, `Labels`, `Categories`, `Timestamp`, and `Comment`, field mapping
-configuration is optional. The connector also accepts nested paths like
-`user.id` and supports JSON string, schemaless map, and Kafka Connect `Struct`
-record values.
