@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class GorseSinkConnector extends SinkConnector {
 
-    static final String VERSION = "0.5.0";
+    static final String VERSION = "0.5.1";
 
     private Map<String, String> props;
 
