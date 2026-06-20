@@ -94,9 +94,6 @@ final class RecordMapper {
 
     private Feedback toFeedback(String topic, Map<String, Object> value) {
         Object feedbackType = find(value, topic, FIELD_FEEDBACK_TYPE, DEFAULT_FEEDBACK_TYPE_PATHS);
-        if (feedbackType == null && !config.defaultFeedbackType().isBlank()) {
-            feedbackType = config.defaultFeedbackType();
-        }
         if (feedbackType == null) {
             throw new DataException("missing required field: " + FIELD_FEEDBACK_TYPE);
         }

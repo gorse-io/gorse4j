@@ -11,8 +11,6 @@ final class GorseSinkConfig {
     static final String API_KEY_CONFIG = "gorse.api.key";
     static final String ENTITY_CONFIG = "gorse.entity";
     static final String BATCH_SIZE_CONFIG = "gorse.batch.size";
-    static final String DEFAULT_FEEDBACK_TYPE_CONFIG = "default.feedback_type";
-
     private static final int DEFAULT_BATCH_SIZE = 500;
 
     private final Map<String, String> props;
@@ -46,13 +44,7 @@ final class GorseSinkConfig {
                         DEFAULT_BATCH_SIZE,
                         ConfigDef.Range.atLeast(1),
                         ConfigDef.Importance.MEDIUM,
-                        "Maximum number of records to send to Gorse in one HTTP request.")
-                .define(
-                        DEFAULT_FEEDBACK_TYPE_CONFIG,
-                        ConfigDef.Type.STRING,
-                        "",
-                        ConfigDef.Importance.LOW,
-                        "Default FeedbackType used when feedback records do not contain one.");
+                        "Maximum number of records to send to Gorse in one HTTP request.");
     }
 
     String endpoint() {
@@ -69,10 +61,6 @@ final class GorseSinkConfig {
             return DEFAULT_BATCH_SIZE;
         }
         return Integer.parseInt(value);
-    }
-
-    String defaultFeedbackType() {
-        return props.getOrDefault(DEFAULT_FEEDBACK_TYPE_CONFIG, "");
     }
 
     EntityType entityForTopic(String topic) {

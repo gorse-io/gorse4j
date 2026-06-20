@@ -36,17 +36,18 @@ public class RecordMapperTest {
     }
 
     @Test
-    public void testMapFeedbackWithFieldOverridesAndDefaultType() {
+    public void testMapFeedbackWithFieldOverrides() {
         RecordMapper mapper = new RecordMapper(new GorseSinkConfig(Map.of(
                 "gorse.endpoint", "http://127.0.0.1:8088",
                 "gorse.api.key", "api-key",
                 "topic.events.entity", "feedback",
+                "topic.events.field.feedback_type", "event.type",
                 "topic.events.field.user_id", "user.id",
                 "topic.events.field.item_id", "item.id",
-                "topic.events.field.value", "score",
-                "default.feedback_type", "read"
+                "topic.events.field.value", "score"
         )));
         Map<String, Object> value = new LinkedHashMap<>();
+        value.put("event", Map.of("type", "read"));
         value.put("user", Map.of("id", "u1"));
         value.put("item", Map.of("id", "i1"));
         value.put("score", 1.0);
