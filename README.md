@@ -11,7 +11,7 @@ Java SDK for gorse recommender system
 <dependency>
     <groupId>io.gorse</groupId>
     <artifactId>gorse-client</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
 </dependency>
 ```
 
