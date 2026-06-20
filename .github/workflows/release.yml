@@ -19,8 +19,76 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
-      - name: Publish package
-        run: mvn --batch-mode deploy
+      - name: Publish unpublished Maven artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(python3 <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          ns = {"m": "http://maven.apache.org/POM/4.0.0"}
+
+          def text(root, path):
+              element = root.find(path, ns)
+              return element.text.strip() if element is not None and element.text else None
+
+          def coordinates(pom):
+              root = ET.parse(pom).getroot()
+              group_id = text(root, "m:groupId") or text(root, "m:parent/m:groupId")
+              artifact_id = text(root, "m:artifactId")
+              version = text(root, "m:version") or text(root, "m:parent/m:version")
+              return group_id, artifact_id, version
+
+          group_id, artifact_id, version = coordinates(Path("pom.xml"))
+          print(f".\t{group_id}\t{artifact_id}\t{version}")
+
+          root = ET.parse("pom.xml").getroot()
+          for module in root.findall("m:modules/m:module", ns):
+              module_path = module.text.strip()
+              group_id, artifact_id, version = coordinates(Path(module_path) / "pom.xml")
+              print(f"{module_path}\t{group_id}\t{artifact_id}\t{version}")
+          PY
+          )
+
+          is_published() {
+            local group_id="$1"
+            local artifact_id="$2"
+            local version="$3"
+            local group_path="${group_id//./\/}"
+            local url="https://repo1.maven.org/maven2/${group_path}/${artifact_id}/${version}/${artifact_id}-${version}.pom"
+            curl --fail --silent --location --output /dev/null "$url"
+          }
+
+          deploy_project() {
+            local module="$1"
+            if [[ "$module" == "." ]]; then
+              mvn --batch-mode --non-recursive deploy
+            else
+              mvn --batch-mode --projects "$module" deploy
+            fi
+          }
+
+          unpublished=()
+          for project in "${projects[@]}"; do
+            IFS=$'\t' read -r module group_id artifact_id version <<< "$project"
+            if is_published "$group_id" "$artifact_id" "$version"; then
+              echo "Already published: ${group_id}:${artifact_id}:${version}; skipping ${module}."
+            else
+              echo "Not yet published: ${group_id}:${artifact_id}:${version}; will deploy ${module}."
+              unpublished+=("$module")
+            fi
+          done
+
+          if [[ ${#unpublished[@]} -eq 0 ]]; then
+            echo "All Maven artifacts for this version are already published."
+            exit 0
+          fi
+
+          for module in "${unpublished[@]}"; do
+            deploy_project "$module"
+          done
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
