@@ -24,7 +24,7 @@ public class GorseSinkTask extends SinkTask {
 
     @Override
     public String version() {
-        return GorseVersion.version();
+        return GorseSinkConnector.VERSION;
     }
 
     @Override

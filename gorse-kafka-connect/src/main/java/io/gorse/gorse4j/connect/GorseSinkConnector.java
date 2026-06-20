@@ -11,6 +11,8 @@ import java.util.Map;
 
 public class GorseSinkConnector extends SinkConnector {
 
+    static final String VERSION = "0.5.0";
+
     private Map<String, String> props;
 
     @Override
@@ -44,6 +46,6 @@ public class GorseSinkConnector extends SinkConnector {
 
     @Override
     public String version() {
-        return GorseVersion.version();
+        return VERSION;
     }
 }
