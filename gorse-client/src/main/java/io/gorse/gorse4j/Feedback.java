@@ -13,6 +13,8 @@ public class Feedback {
     private String itemId;
     private double value;
     private String timestamp;
+    private Object labels;
+    private String comment;
 
     public Feedback() {
     }
@@ -23,6 +25,16 @@ public class Feedback {
         this.itemId = itemId;
         this.value = value;
         this.timestamp = timestamp;
+    }
+
+    public Feedback(String feedbackType, String userId, String itemId, double value, String timestamp, Object labels, String comment) {
+        this.feedbackType = feedbackType;
+        this.userId = userId;
+        this.itemId = itemId;
+        this.value = value;
+        this.timestamp = timestamp;
+        this.labels = labels;
+        this.comment = comment;
     }
 
     @JsonProperty("FeedbackType")
@@ -48,6 +60,16 @@ public class Feedback {
     @JsonProperty("Timestamp")
     public String getTimestamp() {
         return timestamp;
+    }
+
+    @JsonProperty("Labels")
+    public Object getLabels() {
+        return labels;
+    }
+
+    @JsonProperty("Comment")
+    public String getComment() {
+        return comment;
     }
 
     @Override
