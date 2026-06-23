@@ -2,6 +2,7 @@ package io.gorse.gorse4j.connect;
 
 import org.apache.kafka.common.config.ConfigDef;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -78,6 +79,26 @@ final class GorseSinkConfig {
                 props.get("topic." + topic + ".field." + fieldName),
                 props.get("field." + fieldName),
                 defaults);
+    }
+
+    Map<String, String> labelFieldPaths(String topic) {
+        Map<String, String> fieldPaths = new LinkedHashMap<>();
+        addLabelFieldPaths(fieldPaths, "field.labels.");
+        addLabelFieldPaths(fieldPaths, "topic." + topic + ".field.labels.");
+        return fieldPaths;
+    }
+
+    private void addLabelFieldPaths(Map<String, String> fieldPaths, String prefix) {
+        for (Map.Entry<String, String> entry : props.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.startsWith(prefix) && value != null && !value.isBlank()) {
+                String labelName = key.substring(prefix.length());
+                if (!labelName.isBlank()) {
+                    fieldPaths.put(labelName, value);
+                }
+            }
+        }
     }
 
     private String required(String key) {

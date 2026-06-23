@@ -36,6 +36,57 @@ public class RecordMapperTest {
     }
 
     @Test
+    public void testMapUserWithComposedLabels() {
+        RecordMapper mapper = new RecordMapper(new GorseSinkConfig(Map.of(
+                "gorse.endpoint", "http://127.0.0.1:8088",
+                "gorse.api.key", "api-key",
+                "gorse.entity", "user",
+                "field.labels.country", "country",
+                "field.labels.device", "device",
+                "field.labels.source", "context.source"
+        )));
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("user_id", "u1");
+        value.put("country", "CN");
+        value.put("device", "mobile");
+        value.put("context", Map.of("source", "ads"));
+        SinkRecord record = new SinkRecord("users", 0, null, null, null, value, 1L);
+
+        List<Object> users = mapper.toGorseRecords(record);
+
+        Assert.assertEquals(1, users.size());
+        User user = (User) users.get(0);
+        Assert.assertEquals("u1", user.getUserId());
+        Assert.assertEquals(Map.of(
+                "country", "CN",
+                "device", "mobile",
+                "source", "ads"
+        ), user.getLabels());
+    }
+
+    @Test
+    public void testMapUserWithTopicComposedLabelsOverride() {
+        RecordMapper mapper = new RecordMapper(new GorseSinkConfig(Map.of(
+                "gorse.endpoint", "http://127.0.0.1:8088",
+                "gorse.api.key", "api-key",
+                "gorse.entity", "user",
+                "field.labels.source", "source",
+                "topic.users.field.labels.source", "context.source"
+        )));
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("user_id", "u1");
+        value.put("source", "global");
+        value.put("context", Map.of("source", "topic"));
+        SinkRecord record = new SinkRecord("users", 0, null, null, null, value, 1L);
+
+        List<Object> users = mapper.toGorseRecords(record);
+
+        Assert.assertEquals(1, users.size());
+        User user = (User) users.get(0);
+        Assert.assertEquals(Map.of("source", "topic"), user.getLabels());
+    }
+
+    @Test
     public void testMapFeedbackWithFieldOverrides() {
         RecordMapper mapper = new RecordMapper(new GorseSinkConfig(Map.of(
                 "gorse.endpoint", "http://127.0.0.1:8088",
