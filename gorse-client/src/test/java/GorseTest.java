@@ -55,6 +55,14 @@ public class GorseTest {
     }
 
     @Test
+    public void testSearchItems() throws IOException {
+        ItemIterator items = client.searchItems("Toy Story", 3);
+        Assert.assertFalse(items.getItems().isEmpty());
+        Assert.assertEquals("1", items.getItems().get(0).getItemId());
+        Assert.assertEquals("Toy Story (1995)", items.getItems().get(0).getComment());
+    }
+
+    @Test
     public void testFeedback() throws IOException {
         client.insertUser(new User("2000", null));
 
