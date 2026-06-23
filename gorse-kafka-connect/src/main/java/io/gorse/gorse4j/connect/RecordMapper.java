@@ -78,7 +78,7 @@ final class RecordMapper {
     private User toUser(String topic, Map<String, Object> value) {
         return new User(
                 stringValue(required(value, topic, FIELD_USER_ID, DEFAULT_USER_ID_PATHS)),
-                find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS),
+                labels(value, topic),
                 stringValue(find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS)));
     }
 
@@ -86,7 +86,7 @@ final class RecordMapper {
         return new Item(
                 stringValue(required(value, topic, FIELD_ITEM_ID, DEFAULT_ITEM_ID_PATHS)),
                 booleanValue(find(value, topic, FIELD_IS_HIDDEN, DEFAULT_IS_HIDDEN_PATHS)),
-                find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS),
+                labels(value, topic),
                 stringList(find(value, topic, FIELD_CATEGORIES, DEFAULT_CATEGORIES_PATHS)),
                 stringValue(find(value, topic, FIELD_TIMESTAMP, DEFAULT_TIMESTAMP_PATHS)),
                 stringValue(find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS)));
@@ -103,8 +103,23 @@ final class RecordMapper {
                 stringValue(required(value, topic, FIELD_ITEM_ID, DEFAULT_ITEM_ID_PATHS)),
                 doubleValue(find(value, topic, FIELD_VALUE, DEFAULT_VALUE_PATHS)),
                 stringValue(find(value, topic, FIELD_TIMESTAMP, DEFAULT_TIMESTAMP_PATHS)),
-                find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS),
+                labels(value, topic),
                 stringValue(find(value, topic, FIELD_COMMENT, DEFAULT_COMMENT_PATHS)));
+    }
+
+    private Object labels(Map<String, Object> value, String topic) {
+        Map<String, String> labelFieldPaths = config.labelFieldPaths(topic);
+        if (labelFieldPaths.isEmpty()) {
+            return find(value, topic, FIELD_LABELS, DEFAULT_LABELS_PATHS);
+        }
+        Map<String, Object> labels = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : labelFieldPaths.entrySet()) {
+            Object labelValue = findByPaths(value, entry.getValue());
+            if (labelValue != null) {
+                labels.put(entry.getKey(), labelValue);
+            }
+        }
+        return labels.isEmpty() ? null : labels;
     }
 
     private Object required(
@@ -124,7 +139,10 @@ final class RecordMapper {
             String topic,
             String fieldName,
             String defaultPaths) {
-        String paths = config.fieldPaths(topic, fieldName, defaultPaths);
+        return findByPaths(value, config.fieldPaths(topic, fieldName, defaultPaths));
+    }
+
+    private Object findByPaths(Map<String, Object> value, String paths) {
         for (String path : paths.split(",")) {
             Object fieldValue = getPath(value, path.trim());
             if (fieldValue != null) {
