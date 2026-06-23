@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +48,11 @@ public class Gorse {
 
     public Item getItem(String itemId) throws IOException {
         return this.request("GET", this.endpoint + "/api/item/" + itemId, null, Item.class);
+    }
+
+    public ItemIterator searchItems(String query, int n) throws IOException {
+        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        return this.request("GET", this.endpoint + "/api/items?q=" + encodedQuery + "&n=" + n, null, ItemIterator.class);
     }
 
     public RowAffected deleteItem(String itemId) throws IOException {
